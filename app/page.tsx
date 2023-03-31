@@ -56,25 +56,38 @@ export default function Home() {
         <p className="mb-8">Something went wrong. Please try again later.</p>
       )}
       <ul className="w-full lg:w-[1200px] flex flex-col gap-y-4">
-        {choices.map((choice: any, index: number) => (
+        {choices.map((choice: any, idx: number) => (
           <li
             className="border border-black rounded p-4 flex flex-col gap-y-2"
-            key={index}
+            key={idx}
           >
             {choice.message.content
               .split("|")
               .map((item: any, index: number) => {
                 if (index === 0) {
-                  return <p className="font-bold">{item}</p>;
+                  return (
+                    <p className="font-bold" key={index}>
+                      {item}
+                    </p>
+                  );
                 }
                 if (index === choice.message.content.split("|").length - 1) {
                   return (
-                    <a href={item} target="_blank" className="underline">
+                    <a
+                      href={item}
+                      target="_blank"
+                      className="underline"
+                      key={index}
+                    >
                       Search on Google
                     </a>
                   );
                 }
-                return <p className="block">{item}</p>;
+                return (
+                  <p className="block" key={index}>
+                    {item}
+                  </p>
+                );
               })}
           </li>
         ))}
