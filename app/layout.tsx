@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Parallel",
+  title: "Paralll",
   description: "Use GPT-3 like search engine",
 };
 
