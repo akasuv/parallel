@@ -56,8 +56,11 @@ export default function Home() {
         <p className="mb-8">Something went wrong. Please try again later.</p>
       )}
       <ul className="w-full lg:w-[1200px] flex flex-col gap-y-4">
-        {choices.map((choice: any) => (
-          <li className="border border-black rounded p-4 flex flex-col gap-y-2">
+        {choices.map((choice: any, index: number) => (
+          <li
+            className="border border-black rounded p-4 flex flex-col gap-y-2"
+            key={index}
+          >
             {choice.message.content
               .split("|")
               .map((item: any, index: number) => {
