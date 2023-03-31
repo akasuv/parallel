@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 
 const ENDPOINT =
-  process.env.NODE_ENV !== "development"
+  process.env.NODE_ENV === "development"
     ? "http://localhost:3004"
     : "https://paralll-server.fly.dev";
 
