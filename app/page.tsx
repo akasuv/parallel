@@ -53,10 +53,24 @@ export default function Home() {
         .then((res) => res.json())
         .then((data) =>
           setMessages(
-            data.choices.map((choice: any) => ({
-              index: choice.index,
-              ...JSON.parse(choice.message.content),
-            }))
+            data.choices.map((choice: any) => {
+              let obj = {};
+
+              try {
+                obj = JSON.parse(choice.message.content);
+              } catch (e) {
+                obj = {
+                  nickname: "unknown",
+                  title: "unknown",
+                  answer: choice.message.content,
+                };
+              }
+
+              return {
+                index: choice.index,
+                ...obj,
+              };
+            })
           )
         )
         .catch((err) => {
@@ -68,7 +82,7 @@ export default function Home() {
   };
 
   const continueTalk = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && promptForContinuation !== "") {
       setContinuing(true);
       fetch(
         `${ENDPOINT}/continue?choiceIndex=0&prompt=${promptForContinuation}`
@@ -141,17 +155,14 @@ export default function Home() {
         {failed && (
           <p className="mb-8">Something went wrong. Please try again later.</p>
         )}
-        {!racing && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {images.map((image: any, idx: number) => (
-              <img
-                src={image.url}
-                alt="Logo"
-                width="100%"
-                height={200}
-                key={idx}
-              />
-            ))}
+        {!racing && images.length > 0 && (
+          <div className="w-full flex items-center justify-center">
+            <Image
+              width={500}
+              height={500}
+              src={"data:image/png;base64," + images[0].b64_json}
+              alt="image"
+            />
           </div>
         )}
         {selectedConversation && (
