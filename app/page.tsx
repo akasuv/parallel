@@ -1,7 +1,7 @@
 "use client";
-
 import React from "react";
 import Image from "next/image";
+import Configuration from "@/components/Configuration";
 
 const ENDPOINT =
   process.env.NODE_ENV === "development"
@@ -124,6 +124,9 @@ export default function Home() {
       <div className="sticky top-0 h-screen py-32 px-16">
         <div className="mb-8">
           <Image src="/logo.png" alt="Logo" width={200} height={100} />
+        </div>
+        <div>
+          <Configuration />
         </div>
         <div className="flex flex-col items-center w-full justify-center gap-y-8">
           <input
