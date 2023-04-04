@@ -274,8 +274,9 @@ export default function Home() {
                             backgroundColor: "black",
                           }}
                           {...props}
-                          children={String(children).replace(/\n$/, "")}
-                        />
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
                       ) : (
                         <p className="text-black" {...props}>
                           {children}
