@@ -3,6 +3,9 @@ import React from "react";
 import Image from "next/image";
 import Configuration from "@/components/Configuration";
 import { Formik, Form, FormikProps } from "formik";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 type FormValues = {
   apiOptions: {
@@ -244,14 +247,32 @@ export default function Home() {
         )}
 
         {!racing && !selectedConversation && (
-          <ul className="w-full  flex flex-col gap-y-4">
+          <ul className="w-full  flex flex-col gap-y-4 prose prose-pre:bg-transparent prose-pre:p-0">
             {messages.map((message: any, idx: number) => (
-              <li className="p-4 flex flex-col gap-y-2" key={idx}>
-                <div className="card bg-primary text-primary-content">
-                  <div className="card-body">
-                    <p>{message}</p>
-                  </div>
-                </div>
+              <li key={idx}>
+                <ReactMarkdown
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          children={String(children).replace(/\n$/, "")}
+                          style={{ ...dracula }}
+                          language={match[1]}
+                          PreTag="div"
+                          customStyle={{
+                            backgroundColor: "black",
+                          }}
+                          {...props}
+                        />
+                      ) : (
+                        <code {...props}>{children}</code>
+                      );
+                    },
+                  }}
+                >
+                  {message}
+                </ReactMarkdown>
               </li>
             ))}
           </ul>
