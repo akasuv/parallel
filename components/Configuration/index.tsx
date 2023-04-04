@@ -1,75 +1,101 @@
 import React from "react";
 import Models from "@/components/Models";
+import { useField } from "formik";
 
-const Range = ({ label, fieldName }: { label: string; fieldName?: string }) => {
-  const [temperature, setTemperature] = React.useState("50");
-  const changeTemperature = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTemperature(e.target.value);
+type RangeProps = {
+  label: string;
+  name: string;
+  max?: number;
+};
+
+const Range = ({ label, name, max = 1 }: RangeProps) => {
+  const [field, meta, helpers] = useField(name);
+  const { value } = meta;
+  const { setValue } = helpers;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(parseFloat(Number(e.target.value).toFixed(2)));
   };
 
   return (
-    <div className="py-2">
-      <p>{label}</p>
+    <div>
+      <label>{label}</label>
       <div className="flex gap-x-4 items-center">
         <input
+          {...field}
           type="range"
           min="0"
-          max="100"
-          value={temperature}
+          max={max}
           className="range range-xs"
-          onChange={changeTemperature}
+          step="any"
+          onChange={handleChange}
         />
-        <p className="w-8 shrink-0">{Number(temperature) / 50}</p>
+        <p className="w-8 shrink-0">{value}</p>
       </div>
     </div>
   );
 };
 
-const N = () => {
+type NumberInputProps = {
+  label: string;
+  name: string;
+};
+
+const NumberInput = ({ label, name }: NumberInputProps) => {
+  const [field] = useField(name);
   return (
     <div className="py-2 flex items-center gap-x-2">
-      <p>n</p>
+      <p>{label}</p>
       <input
-        defaultValue="1"
+        {...field}
         type="number"
-        className="input input-bordered input-primary w-full max-w-xs h-full py-2 w-24"
+        className="input input-bordered input-primary h-full py-2 w-20"
       />
     </div>
   );
 };
 
-const MaxTokens = () => {
+type CheckboxProps = {
+  label: string;
+  name: string;
+};
+
+const Checkbox = ({ label, name }: CheckboxProps) => {
+  const [field] = useField(name);
   return (
     <div className="py-2 flex items-center gap-x-2">
-      <p>max_tokens</p>
-      <input
-        defaultValue="1"
-        type="number"
-        className="input input-bordered input-primary w-full max-w-xs h-full py-2 w-24"
-      />
+      <p>{label}</p>
+      <input type="checkbox" className="toggle" {...field} />
     </div>
   );
 };
-const Stream = () => {
+
+type ConfigurationProps = {};
+
+const Configuration = ({}: ConfigurationProps) => {
   return (
-    <div className="py-2 flex items-center gap-x-2">
-      <p>Stream</p>
-      <input type="checkbox" className="toggle" checked />
-    </div>
-  );
-};
-const Configuration = () => {
-  return (
-    <div className="py-4">
-      <Models />
-      <Range label="Temperature" />
-      <Range label="top_p" />
-      <Range label="presence_penalty" />
-      <Range label="frequency_penalty" />
-      <div className="flex items-center gap-x-4">
-        <N />
-        <Stream />
-        <MaxTokens />
+    <div className="py-4 mb-8">
+      <div className="mb-8">
+        <Models name="apiOptions.model" />
+      </div>
+      <div className="flex flex-col gap-y-4">
+        <Range label="Temperature" name="apiOptions.temperature" max={2} />
+        <Range label="top_p" name="apiOptions.top_p" max={2} />
+        <Range
+          label="presence_penalty"
+          name="apiOptions.presence_penalty"
+          max={2}
+        />
+        <Range
+          label="frequency_penalty"
+          name="apiOptions.frequency_penalty"
+          max={2}
+        />
+        <div className="flex items-center gap-x-4">
+          <NumberInput label="n" name="apiOptions.n" />
+          <NumberInput label="max_tokens" name="apiOptions.max_tokens" />
+          <Checkbox label="Stream" name="apiOptions.stream" />
+        </div>
       </div>
     </div>
   );

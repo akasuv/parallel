@@ -2,6 +2,21 @@
 import React from "react";
 import Image from "next/image";
 import Configuration from "@/components/Configuration";
+import { Formik, Form, FormikProps } from "formik";
+
+type FormValues = {
+  apiOptions: {
+    model: string;
+    temperature: number;
+    top_p: number;
+    presence_penalty: number;
+    frequency_penalty: number;
+    n: number;
+    max_tokens: number;
+    stream: boolean;
+  };
+  prompt: string;
+};
 
 const ENDPOINT =
   process.env.NODE_ENV === "development"
@@ -39,39 +54,25 @@ export default function Home() {
       });
   };
 
-  const handleRun = () => {
+  const handleRun = (formValues: FormValues) => {
+    const { prompt, apiOptions } = formValues;
     setPromptForContinuation("");
     setContinuedConversation([]);
     setSelectedConversation(null);
     setMessages([]);
     setImages([]);
     setFailed(false);
+
     if (prompt !== "") {
       setRacing(true);
+      const queryString = `prompt=${prompt}&apiOptions=${JSON.stringify(
+        apiOptions
+      )}`;
 
-      fetch(`${ENDPOINT}/gpt?prompt=${prompt}`)
+      fetch(`${ENDPOINT}/gpt?${queryString}`)
         .then((res) => res.json())
         .then((data) =>
-          setMessages(
-            data.choices.map((choice: any) => {
-              let obj = {};
-
-              try {
-                obj = JSON.parse(choice.message.content);
-              } catch (e) {
-                obj = {
-                  nickname: "unknown",
-                  title: "unknown",
-                  answer: choice.message.content,
-                };
-              }
-
-              return {
-                index: choice.index,
-                ...obj,
-              };
-            })
-          )
+          setMessages(data.choices.map((choice: any) => choice.message.content))
         )
         .catch((err) => {
           setFailed(true);
@@ -113,38 +114,69 @@ export default function Home() {
       .finally(() => setContinuing(false));
   }, [selectedConversation]);
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    values: FormValues
+  ) => {
     if (event.key === "Enter") {
-      handleRun();
+      handleRun(values);
     }
   };
 
   return (
     <div className="min-h-screen w-screen flex">
-      <div className="sticky top-0 h-screen py-32 px-16">
+      <div className="sticky top-0 h-screen pt-16 pb-32 px-16">
         <div className="mb-8">
           <Image src="/logo.png" alt="Logo" width={200} height={100} />
         </div>
-        <div>
-          <Configuration />
-        </div>
-        <div className="flex flex-col items-center w-full justify-center gap-y-8">
-          <input
-            className="input input-bordered input-primary w-full focus:outline-none border-[2px] "
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter your prompt here"
-            onKeyDown={handleKeyDown}
-          />
-          <div className="flex gap-x-4">
-            <button className="btn lg:btn-wide" onClick={handleRun}>
-              Search
-            </button>
-            <button className="btn lg:btn-wide" onClick={generateImage}>
-              Image
-            </button>
-          </div>
-        </div>
+        <Formik
+          initialValues={{
+            apiOptions: {
+              model: "gpt-3.5-turbo",
+              temperature: 1,
+              top_p: 1,
+              presence_penalty: 0,
+              frequency_penalty: 0,
+              n: 1,
+              max_tokens: 1000,
+              stream: false,
+            },
+            prompt: "",
+          }}
+          onSubmit={handleRun}
+        >
+          {(props: FormikProps<FormValues>) => (
+            <Form>
+              <div>
+                <Configuration />
+              </div>
+              <div className="flex flex-col items-center w-full justify-center gap-y-8 mt-4">
+                <input
+                  className="input input-bordered input-primary w-full focus:outline-none border-[2px] "
+                  value={props.values.prompt}
+                  name="prompt"
+                  onChange={props.handleChange}
+                  placeholder="Enter your prompt here"
+                  onKeyDown={(e) => handleKeyDown(e, props.values)}
+                />
+                <div className="flex gap-x-4">
+                  <button
+                    className="btn lg:btn-wide"
+                    type="submit" /* onClick={handleRun} */
+                  >
+                    Search
+                  </button>
+                  <button
+                    className="btn btn-outline lg:btn-wide"
+                    onClick={() => props.resetForm()}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </div>
       <div className="p-8 bg-[radial-gradient(rgba(0,0,0,0.2)_0.5px,rgba(242,242,242)_0.5px)] bg-[length:5px_5px] flex-grow overflow-scroll h-screen">
         {racing && (
@@ -215,21 +247,9 @@ export default function Home() {
           <ul className="w-full  flex flex-col gap-y-4">
             {messages.map((message: any, idx: number) => (
               <li className="p-4 flex flex-col gap-y-2" key={idx}>
-                <div className="chat chat-end">
-                  <div className="chat-header w-full flex justify-between">
-                    <div className="opacity-50">{message.title}</div>
-                    <p>{message.nickname}</p>
-                  </div>
-                  <div className="chat-bubble max-w-full">
-                    {message.answer}
-                    <div className="mt-4">
-                      <a
-                        className="link"
-                        onClick={() => setSelectedConversation(message)}
-                      >
-                        Continue
-                      </a>
-                    </div>
+                <div className="card bg-primary text-primary-content">
+                  <div className="card-body">
+                    <p>{message}</p>
                   </div>
                 </div>
               </li>

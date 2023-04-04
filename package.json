@@ -19,6 +19,7 @@
     "dotenv": "^16.0.3",
     "eslint": "8.37.0",
     "eslint-config-next": "13.2.4",
+    "formik": "^2.2.9",
     "langchain": "^0.0.44",
     "next": "13.2.4",
     "postcss": "^8.4.21",
