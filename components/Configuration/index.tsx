@@ -80,7 +80,7 @@ const Configuration = ({}: ConfigurationProps) => {
         <Models name="apiOptions.model" />
       </div>
       <div className="flex flex-col gap-y-4">
-        <Range label="Temperature" name="apiOptions.temperature" max={2} />
+        <Range label="temperature" name="apiOptions.temperature" max={2} />
         <Range label="top_p" name="apiOptions.top_p" max={2} />
         <Range
           label="presence_penalty"
