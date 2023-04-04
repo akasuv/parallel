@@ -258,7 +258,7 @@ export default function Home() {
         )}
 
         {!generating && !selectedConversation && (
-          <ul className="w-full  flex flex-col gap-y-4 prose prose-pre:bg-transparent prose-pre:p-0">
+          <ul className="w-full  flex flex-col gap-y-4 text-black prose prose-pre:bg-transparent prose-pre:p-0">
             {messages.map((message: any, idx: number) => (
               <li key={idx}>
                 <ReactMarkdown
@@ -274,11 +274,12 @@ export default function Home() {
                             backgroundColor: "black",
                           }}
                           {...props}
-                        >
-                          {String(children).replace(/\n$/, "")}
-                        </SyntaxHighlighter>
+                          children={String(children).replace(/\n$/, "")}
+                        />
                       ) : (
-                        <code {...props}>{children}</code>
+                        <p className="text-black" {...props}>
+                          {children}
+                        </p>
                       );
                     },
                   }}

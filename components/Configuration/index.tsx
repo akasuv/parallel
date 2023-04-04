@@ -6,9 +6,10 @@ type RangeProps = {
   label: string;
   name: string;
   max?: number;
+  min?: number;
 };
 
-const Range = ({ label, name, max = 1 }: RangeProps) => {
+const Range = ({ label, name, min = 0, max = 1 }: RangeProps) => {
   const [field, meta, helpers] = useField(name);
   const { value } = meta;
   const { setValue } = helpers;
@@ -24,7 +25,7 @@ const Range = ({ label, name, max = 1 }: RangeProps) => {
         <input
           {...field}
           type="range"
-          min="0"
+          min={min}
           max={max}
           className="range range-xs"
           step="any"
@@ -85,11 +86,13 @@ const Configuration = ({}: ConfigurationProps) => {
           label="presence_penalty"
           name="apiOptions.presence_penalty"
           max={2}
+          min={-2}
         />
         <Range
           label="frequency_penalty"
           name="apiOptions.frequency_penalty"
           max={2}
+          min={-2}
         />
         <div className="flex items-center gap-x-4">
           <NumberInput label="n" name="apiOptions.n" />
