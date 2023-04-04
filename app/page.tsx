@@ -8,14 +8,6 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 // @ts-ignore
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
-// import * as LottiePlayer from "@lottiefiles/lottie-player";
-import "@lottiefiles/lottie-player";
-
-declare namespace JSX {
-  interface IntrinsicElements {
-    "lottie-player": any;
-  }
-}
 
 type FormValues = {
   apiOptions: {
@@ -49,6 +41,9 @@ export default function Home() {
   const [continuing, setContinuing] = React.useState<boolean>(false);
   const [promptForContinuation, setPromptForContinuation] = React.useState("");
 
+  React.useEffect(() => {
+    import("@lottiefiles/lottie-player");
+  }, []);
   const generateImage = () => {
     setPromptForContinuation("");
     setContinuedConversation([]);
@@ -272,7 +267,6 @@ export default function Home() {
                       const match = /language-(\w+)/.exec(className || "");
                       return !inline && match ? (
                         <SyntaxHighlighter
-                          children={String(children).replace(/\n$/, "")}
                           style={{ ...dracula }}
                           language={match[1]}
                           PreTag="div"
@@ -280,7 +274,9 @@ export default function Home() {
                             backgroundColor: "black",
                           }}
                           {...props}
-                        />
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
                       ) : (
                         <code {...props}>{children}</code>
                       );
