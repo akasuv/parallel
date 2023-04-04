@@ -154,7 +154,7 @@ export default function Home() {
           onSubmit={handleRun}
         >
           {(props: FormikProps<FormValues>) => (
-            <Form>
+            <Form autoComplete="off">
               <div>
                 <Configuration />
               </div>
