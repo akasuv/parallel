@@ -4,8 +4,18 @@ import Image from "next/image";
 import Configuration from "@/components/Configuration";
 import { Formik, Form, FormikProps } from "formik";
 import ReactMarkdown from "react-markdown";
+// @ts-ignore
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+// @ts-ignore
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+// import * as LottiePlayer from "@lottiefiles/lottie-player";
+import "@lottiefiles/lottie-player";
+
+declare namespace JSX {
+  interface IntrinsicElements {
+    "lottie-player": any;
+  }
+}
 
 type FormValues = {
   apiOptions: {
@@ -29,7 +39,7 @@ const ENDPOINT =
 export default function Home() {
   const [prompt, setPrompt] = React.useState<string>("");
   const [messages, setMessages] = React.useState<any>([]);
-  const [racing, setRacing] = React.useState<boolean>(false);
+  const [generating, setGenerating] = React.useState<boolean>(false);
   const [failed, setFailed] = React.useState<boolean>(false);
   const [images, setImages] = React.useState<any>([]);
   const [selectedConversation, setSelectedConversation] = React.useState<any>();
@@ -45,7 +55,7 @@ export default function Home() {
     setSelectedConversation(null);
     setMessages([]);
     setImages([]);
-    setRacing(true);
+    setGenerating(true);
     setFailed(false);
     fetch(`${ENDPOINT}/image?prompt=${prompt}`)
       .then((res) => res.json())
@@ -53,7 +63,7 @@ export default function Home() {
         setImages(res.data);
       })
       .finally(() => {
-        setRacing(false);
+        setGenerating(false);
       });
   };
 
@@ -67,7 +77,7 @@ export default function Home() {
     setFailed(false);
 
     if (prompt !== "") {
-      setRacing(true);
+      setGenerating(true);
       const queryString = `prompt=${prompt}&apiOptions=${JSON.stringify(
         apiOptions
       )}`;
@@ -81,7 +91,7 @@ export default function Home() {
           setFailed(true);
           console.log(err);
         })
-        .finally(() => setRacing(false));
+        .finally(() => setGenerating(false));
     }
   };
 
@@ -182,18 +192,24 @@ export default function Home() {
         </Formik>
       </div>
       <div className="p-8 bg-[radial-gradient(rgba(0,0,0,0.2)_0.5px,rgba(242,242,242)_0.5px)] bg-[length:5px_5px] flex-grow overflow-scroll h-screen">
-        {racing && (
-          <div className="flex flex-col gap-8 pt-32 ">
-            <p className="text-2xl font-bold">Racing...</p>
-            <progress className="progress w-30"></progress>
-            <progress className="progress w-30"></progress>
-            <progress className="progress w-30"></progress>
+        {generating && (
+          <div className="flex flex-col gap-y-16 pt-32 items-center">
+            {/* @ts-ignore */}
+            <lottie-player
+              speed="0.7"
+              autoplay
+              loop
+              mode="bounce"
+              src="https://assets4.lottiefiles.com/packages/lf20_aMX99M5A06.json"
+              style={{ height: "300px", width: "300px" }}
+            />
+            <p className="font-medium">Thinking...</p>
           </div>
         )}
         {failed && (
           <p className="mb-8">Something went wrong. Please try again later.</p>
         )}
-        {!racing && images.length > 0 && (
+        {!generating && images.length > 0 && (
           <div className="w-full flex items-center justify-center">
             <Image
               width={500}
@@ -246,7 +262,7 @@ export default function Home() {
           </ul>
         )}
 
-        {!racing && !selectedConversation && (
+        {!generating && !selectedConversation && (
           <ul className="w-full  flex flex-col gap-y-4 prose prose-pre:bg-transparent prose-pre:p-0">
             {messages.map((message: any, idx: number) => (
               <li key={idx}>

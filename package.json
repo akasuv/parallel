@@ -11,6 +11,8 @@
   "dependencies": {
     "@headlessui/react": "^1.7.13",
     "@heroicons/react": "^2.0.17",
+    "@lottiefiles/lottie-player": "^1.7.1",
+    "@lottiefiles/react-lottie-player": "^3.5.3",
     "@types/node": "18.15.11",
     "@types/react": "18.0.31",
     "@types/react-dom": "18.0.11",
