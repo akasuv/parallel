@@ -1,4 +1,5 @@
 "use client";
+import Formats from "@/components/Formats";
 import React from "react";
 import Image from "next/image";
 import Configuration from "@/components/Configuration";
@@ -21,6 +22,7 @@ type FormValues = {
     stream: boolean;
   };
   prompt: string;
+  template: string;
 };
 
 const ENDPOINT =
@@ -63,7 +65,7 @@ export default function Home() {
   };
 
   const handleRun = (formValues: FormValues) => {
-    const { prompt, apiOptions } = formValues;
+    const { prompt, apiOptions, template } = formValues;
     setPromptForContinuation("");
     setContinuedConversation([]);
     setSelectedConversation(null);
@@ -73,7 +75,7 @@ export default function Home() {
 
     if (prompt !== "") {
       setGenerating(true);
-      const queryString = `prompt=${prompt}&apiOptions=${JSON.stringify(
+      const queryString = `prompt=${prompt}&template=${template}&apiOptions=${JSON.stringify(
         apiOptions
       )}`;
 
@@ -132,33 +134,34 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-screen flex">
-      <div className="sticky top-0 h-screen pt-16 pb-32 px-16">
-        <div className="mb-8">
-          <Image src="/logo.png" alt="Logo" width={200} height={100} />
-        </div>
-        <Formik
-          initialValues={{
-            apiOptions: {
-              model: "gpt-3.5-turbo",
-              temperature: 1,
-              top_p: 1,
-              presence_penalty: 0,
-              frequency_penalty: 0,
-              n: 1,
-              max_tokens: 1000,
-              stream: false,
-            },
-            prompt: "",
-          }}
-          onSubmit={handleRun}
-        >
-          {(props: FormikProps<FormValues>) => (
+    <Formik
+      initialValues={{
+        apiOptions: {
+          model: "gpt-3.5-turbo",
+          temperature: 1,
+          top_p: 1,
+          presence_penalty: 0,
+          frequency_penalty: 0,
+          n: 1,
+          max_tokens: 100,
+          stream: false,
+        },
+        prompt: "",
+        template: "Markdown",
+      }}
+      onSubmit={handleRun}
+    >
+      {(props: FormikProps<FormValues>) => (
+        <div className="min-h-screen w-screen flex">
+          <div className="sticky top-0 h-screen pt-16 pb-32 px-16">
+            <div className="mb-8">
+              <Image src="/logo.png" alt="Logo" width={200} height={100} />
+            </div>
             <Form autoComplete="off">
               <div>
                 <Configuration />
               </div>
-              <div className="flex flex-col items-center w-full justify-center gap-y-8 mt-4">
+              <div className="flex flex-col items-center w-full justify-center gap-y-8 mt-8">
                 <input
                   className="input input-bordered input-primary w-full focus:outline-none border-[2px] "
                   value={props.values.prompt}
@@ -183,115 +186,153 @@ export default function Home() {
                 </div>
               </div>
             </Form>
-          )}
-        </Formik>
-      </div>
-      <div className="p-8 bg-[radial-gradient(rgba(0,0,0,0.2)_0.5px,rgba(242,242,242)_0.5px)] bg-[length:5px_5px] flex-grow overflow-scroll h-screen">
-        {generating && (
-          <div className="flex flex-col gap-y-16 pt-32 items-center">
-            {/* @ts-ignore */}
-            <lottie-player
-              speed="0.7"
-              autoplay
-              loop
-              mode="bounce"
-              src="https://assets4.lottiefiles.com/packages/lf20_aMX99M5A06.json"
-              style={{ height: "300px", width: "300px" }}
-            />
-            <p className="font-medium">Thinking...</p>
           </div>
-        )}
-        {failed && (
-          <p className="mb-8">Something went wrong. Please try again later.</p>
-        )}
-        {!generating && images.length > 0 && (
-          <div className="w-full flex items-center justify-center">
-            <Image
-              width={500}
-              height={500}
-              src={"data:image/png;base64," + images[0].b64_json}
-              alt="image"
-            />
-          </div>
-        )}
-        {selectedConversation && (
-          <ul className="w-full  flex flex-col gap-y-4 pb-32">
-            <li className="p-4 flex flex-col gap-y-2">
-              <div className="chat chat-end">
-                <div className="chat-header w-full flex justify-between">
-                  <div className="opacity-50">{selectedConversation.title}</div>
-                  <p>{selectedConversation.nickname}</p>
-                </div>
-                <div className="chat-bubble max-w-full">
-                  {selectedConversation.answer}
-                </div>
-              </div>
-            </li>
-            {continuedConversation.map((message: any, idx: number) => (
-              <li className="p-4 flex flex-col gap-y-2" key={idx}>
-                <div className="chat chat-end">
-                  <div className="chat-header w-full flex justify-between">
-                    <div className="opacity-50">
-                      {selectedConversation.title}
-                    </div>
-                    <p>{selectedConversation.nickname}</p>
-                  </div>
-                  <div className="chat-bubble max-w-full">{message}</div>
-                </div>
-              </li>
-            ))}
-            {continuing && (
-              <div className="flex justify-center">
-                <progress className="progress w-20"></progress>
+          <div className="p-8 bg-[radial-gradient(rgba(0,0,0,0.2)_0.5px,rgba(242,242,242)_0.5px)] bg-[length:5px_5px] flex-grow overflow-scroll h-screen">
+            <div className="w-full flex justify-end gap-x-2">
+              <Formats name="template" onChange={() => props.submitForm()} />
+            </div>
+            {generating && (
+              <div className="flex flex-col gap-y-16 pt-32 items-center">
+                {/* @ts-ignore */}
+                <lottie-player
+                  speed="0.7"
+                  autoplay
+                  loop
+                  mode="bounce"
+                  src="https://assets4.lottiefiles.com/packages/lf20_aMX99M5A06.json"
+                  style={{ height: "300px", width: "300px" }}
+                />
+                <p className="font-medium">Thinking...</p>
               </div>
             )}
-            <li>
-              <input
-                className="fixed bottom-8 input input-bordered input-primary w-[700px] focus:outline-none border-[2px] "
-                value={promptForContinuation}
-                onChange={(e) => setPromptForContinuation(e.target.value)}
-                placeholder="Enter your prompt here"
-                onKeyDown={continueTalk}
-              />
-            </li>
-          </ul>
-        )}
+            {failed && (
+              <p className="mb-8">
+                Something went wrong. Please try again later.
+              </p>
+            )}
+            {!generating && images.length > 0 && (
+              <div className="w-full flex items-center justify-center">
+                <Image
+                  width={500}
+                  height={500}
+                  src={"data:image/png;base64," + images[0].b64_json}
+                  alt="image"
+                />
+              </div>
+            )}
+            {selectedConversation && (
+              <ul className="w-full  flex flex-col gap-y-4 pb-32">
+                <li className="p-4 flex flex-col gap-y-2">
+                  <div className="chat chat-end">
+                    <div className="chat-header w-full flex justify-between">
+                      <div className="opacity-50">
+                        {selectedConversation.title}
+                      </div>
+                      <p>{selectedConversation.nickname}</p>
+                    </div>
+                    <div className="chat-bubble max-w-full">
+                      {selectedConversation.answer}
+                    </div>
+                  </div>
+                </li>
+                {continuedConversation.map((message: any, idx: number) => (
+                  <li className="p-4 flex flex-col gap-y-2" key={idx}>
+                    <div className="chat chat-end">
+                      <div className="chat-header w-full flex justify-between">
+                        <div className="opacity-50">
+                          {selectedConversation.title}
+                        </div>
+                        <p>{selectedConversation.nickname}</p>
+                      </div>
+                      <div className="chat-bubble max-w-full">{message}</div>
+                    </div>
+                  </li>
+                ))}
+                {continuing && (
+                  <div className="flex justify-center">
+                    <progress className="progress w-20"></progress>
+                  </div>
+                )}
+                <li>
+                  <input
+                    className="fixed bottom-8 input input-bordered input-primary w-[700px] focus:outline-none border-[2px] "
+                    value={promptForContinuation}
+                    onChange={(e) => setPromptForContinuation(e.target.value)}
+                    placeholder="Enter your prompt here"
+                    onKeyDown={continueTalk}
+                  />
+                </li>
+              </ul>
+            )}
 
-        {!generating && !selectedConversation && (
-          <ul className="w-full  flex flex-col gap-y-4 text-black prose prose-pre:bg-transparent prose-pre:p-0">
-            {messages.map((message: any, idx: number) => (
-              <li key={idx}>
-                <ReactMarkdown
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || "");
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={{ ...dracula }}
-                          language={match[1]}
-                          PreTag="div"
-                          customStyle={{
-                            backgroundColor: "black",
-                          }}
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, "")}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <p className="text-black" {...props}>
-                          {children}
-                        </p>
-                      );
-                    },
-                  }}
-                >
-                  {message}
-                </ReactMarkdown>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+            {!generating && !selectedConversation && (
+              <div className="h-full flex flex-col justify-center gap-y-4">
+                <ul className="w-full text-black carousel overflow-hidden">
+                  {messages.map((message: any, idx: number) => (
+                    <li
+                      key={idx}
+                      className="carousel-item w-full flex justify-center items-center"
+                      id={`slide${idx + 1}`}
+                    >
+                      <div className="card w-full h-full shrink-1 grow-1 bg-base-100 shadow-xl prose prose-pre:bg-transparent prose-pre:p-0 prose-pre:max-w-full overflow-scroll">
+                        <div className="card-body items-center">
+                          <div className="w-full">
+                            <ReactMarkdown
+                              components={{
+                                code({
+                                  node,
+                                  inline,
+                                  className,
+                                  children,
+                                  ...props
+                                }) {
+                                  const match = /language-(\w+)/.exec(
+                                    className || ""
+                                  );
+                                  return !inline && match ? (
+                                    <SyntaxHighlighter
+                                      style={{ ...dracula }}
+                                      language={match[1]}
+                                      PreTag="div"
+                                      customStyle={{
+                                        backgroundColor: "black",
+                                      }}
+                                      {...props}
+                                    >
+                                      {String(children).replace(/\n$/, "")}
+                                    </SyntaxHighlighter>
+                                  ) : (
+                                    <p className="text-black" {...props}>
+                                      {children}
+                                    </p>
+                                  );
+                                },
+                              }}
+                            >
+                              {message}
+                            </ReactMarkdown>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex justify-center w-full py-2 gap-2">
+                  {messages.map((_: any, idx: number) => (
+                    <a
+                      href={`#slide${idx + 1}`}
+                      className="btn btn-xs"
+                      key={idx}
+                    >
+                      {idx + 1}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </Formik>
   );
 }

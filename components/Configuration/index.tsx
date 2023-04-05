@@ -75,29 +75,41 @@ type ConfigurationProps = {};
 
 const Configuration = ({}: ConfigurationProps) => {
   return (
-    <div className="py-4 mb-8">
-      <div className="mb-8">
+    <div>
+      <div className="mb-2">
         <Models name="apiOptions.model" />
       </div>
-      <div className="flex flex-col gap-y-4">
-        <Range label="temperature" name="apiOptions.temperature" max={2} />
-        <Range label="top_p" name="apiOptions.top_p" max={2} />
-        <Range
-          label="presence_penalty"
-          name="apiOptions.presence_penalty"
-          max={2}
-          min={-2}
-        />
-        <Range
-          label="frequency_penalty"
-          name="apiOptions.frequency_penalty"
-          max={2}
-          min={-2}
-        />
-        <div className="flex items-center gap-x-4">
-          <NumberInput label="n" name="apiOptions.n" />
-          <NumberInput label="max_tokens" name="apiOptions.max_tokens" />
-          <Checkbox label="Stream" name="apiOptions.stream" />
+      <div tabIndex={0} className="collapse collapse-arrow ">
+        <input type="checkbox" className="peer" />
+        <div className="collapse-title font-small w-fit pl-0">Advanced</div>
+        <div className="collapse-content">
+          <div className="mb-8">
+            <div className="flex flex-col gap-y-4">
+              <Range
+                label="temperature"
+                name="apiOptions.temperature"
+                max={2}
+              />
+              <Range label="top_p" name="apiOptions.top_p" max={2} />
+              <Range
+                label="presence_penalty"
+                name="apiOptions.presence_penalty"
+                max={2}
+                min={-2}
+              />
+              <Range
+                label="frequency_penalty"
+                name="apiOptions.frequency_penalty"
+                max={2}
+                min={-2}
+              />
+              <div className="flex items-center gap-x-4">
+                <NumberInput label="n" name="apiOptions.n" />
+                <NumberInput label="max_tokens" name="apiOptions.max_tokens" />
+                <Checkbox label="Stream" name="apiOptions.stream" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
